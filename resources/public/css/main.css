@@ -1,0 +1,145 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: 'Roboto Slab', serif;
+    font-weight: 100;
+    font-size: 52px;
+    background-color: #000;
+    color: #ddd;
+}
+
+h1 {
+    font-size: 1em;
+    margin: 1em;
+    text-align: center;
+    padding: 0;
+    font-weight: 400;
+}
+
+.future {
+    display: none;
+}
+
+.week._52, .week._48, .week._44, .week._40,
+.week._36, .week._32, .week._28, .week._24,
+.week._20, .week._16, .week._12, .week._8,
+.week._4 {
+    background-color: #003;
+    color: #7ef;
+}
+
+.week._51, .week._47, .week._43, .week._39,
+.week._35, .week._31, .week._27, .week._23,
+.week._19, .week._15, .week._11, .week._7,
+.week._3 {
+    background-color: #030;
+    color: #7f7;
+}
+
+.week._50, .week._46, .week._42, .week._38,
+.week._34, .week._30, .week._26, .week._22,
+.week._18, .week._14, .week._10, .week._6,
+.week._2 {
+    background-color: #300;
+    color: #f77;
+}
+
+.week._49, .week._45, .week._41, .week._37,
+.week._33, .week._29, .week._25, .week._21,
+.week._17, .week._13, .week._9, .week._5,
+.week._1 {
+    background-color: #303;
+    color: #f7f;
+}
+
+.week {
+    position: relative;
+    padding: 0.5em 0;
+}
+.week.current {
+    background-color: #000;
+    color: #777;
+    padding-top: 0;
+}
+
+.week:not(.current) > .day:not(.fav) {
+    display: none;
+}
+
+.day {
+    position: relative;
+    height: 1.5em;
+}
+.day.today {
+    background-color: #eee;
+    margin-bottom: 0.5em;
+    padding: 0.25em 0;
+}
+.day.today .word.first {
+    color: #777;
+}
+.day.today .word.second {
+    color: #000;
+}
+
+.week.current > .day:not(.future):after {
+    content: '\2605';
+    position: absolute;
+    right: 0.25em;
+    color: #222;
+    font-size: 0.75em;
+    margin-top: 0.25em;
+    transition: color 0.2s ease-out;
+}
+.week.current > .fav.day:after {
+    color: #aa0;
+}
+
+.week.current > .day:before {
+    font-size: 0.33em;
+    text-transform: uppercase;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+    -webkit-transform: translateY(-50%) rotate(-90deg);
+    width: 4em;
+    margin: 0;
+    color: #555;
+    font-weight: 400;
+    padding: 0;
+    text-align: center;
+}
+.week.current > .mon.day:before { content: 'Mon'; }
+.week.current > .tue.day:before { content: 'Tue'; }
+.week.current > .wed.day:before { content: 'Wed'; }
+.week.current > .thu.day:before { content: 'Thu'; }
+.week.current > .fri.day:before { content: 'Fri'; }
+.week.current > .sat.day:before { content: 'Sat'; }
+.week.current > .sun.day:before { content: 'Sun'; }
+.week.current > .day.today:before {
+    color: #999;
+    content: 'Today';
+}
+
+.word {
+    position: absolute;
+    display: inline-block;
+    height: 1.5em;
+    text-transform: lowercase;
+}
+.first.word {
+    left: 1.25em;
+    right: 47.5%;
+    margin-right: 0.125em;
+    text-align: right;
+}
+.second.word {
+    left: 52.5%;
+    right: 1.25em;
+    margin-left: 0.125em;
+    text-align: left;
+    color: #eee;
+}

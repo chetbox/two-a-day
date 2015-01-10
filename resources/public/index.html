@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>&#9733; Two-a-day</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <link href="css/main.css" media="screen" rel="stylesheet" type="text/css" />
+        <link href="css/mobile.css" media="screen and (max-width:640px)" rel="stylesheet" type="text/css" />
+        <link href="http://fonts.googleapis.com/css?family=Roboto+Slab:100,400" rel="stylesheet" type="text/css" />
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    </head>
+    <body>
+        <div id="banner">
+            <h1>What was the best thing about your day?</h1>
+        </div>
+        <div id="weeks">
+            <div class="week current">
+        </div>
+    </body>
+    <script type="text/javascript">
+        $('.current.week')
+            .on('keydown', '.today .word[contenteditable]', function(e) {
+                switch (e.which) {
+                    case 13: // return
+                    case 32: // space
+                        $(this).next('.word[contenteditable]').focus();
+                        e.preventDefault();
+                        break;
+                    case 8: // backspace
+                        console.log($(this).text())
+                        if ($(e.target).text().length == 0) {
+                            $(this).prev('.word').focus();
+                            e.preventDefault();
+                        }
+                        break;
+                }
+            })
+            // TODO: make today favouritable
+            .on('click', '.day:not(.today)', function() {
+                $(this).closest('.day')
+                    .addClass('fav')
+                    .siblings().removeClass('fav');
+            });
+
+        function createDayEl(day) {
+            var words = day.content
+                ? day.content.split(' ')
+                : [null, null];
+            return $('<div class="day">')
+                .addClass(day.E)
+                .addClass(day.today ? 'today' : null)
+                .addClass(day.fav ? 'fav' : null)
+                .append(
+                    $('<span class="first word">')
+                        .text(words[0])
+                        .attr('contenteditable', day.today),
+                    $('<span class="second word">')
+                        .text(words[1])
+                        .attr('contenteditable', day.today)
+                );
+        }
+
+        function fetchWeek(elem, week_id, callback) {
+            $.get('/api/weeks/' + week_id, function(week) {
+                $(elem)
+                    .addClass('_' + week.w)
+                    .append( $.map(week.days.reverse(), createDayEl) );
+                if (callback) callback(week);
+            });
+        }
+
+        function createWeekEl(week) {
+            return $('<div class="week">')
+                .addClass('_' + week.w);
+        }
+
+        fetchWeek($('.week.current'), 'current', function() {
+            $('.week.current .today .first.word').focus();
+            window.scrollTo(0, 0);
+        });
+
+        $.get('/api/weeks/previous', function(weeks) {
+            $('#weeks')
+                .append(
+                    $.map(weeks.reverse(), function(week) {
+                        var el = createWeekEl(week);
+                        fetchWeek(el, week.w);
+                        return el;
+                    })
+                );
+        });
+    </script>
+</html>
