@@ -18,19 +18,17 @@
     </body>
     <script type="text/javascript">
         $('.current.week')
-            .on('keydown', '.today .word[contenteditable]', function(e) {
+            .on('keydown', '.today .post', function(e) {
                 switch (e.which) {
-                    case 13: // return
                     case 32: // space
-                        $(this).next('.word[contenteditable]').focus();
-                        e.preventDefault();
-                        break;
-                    case 8: // backspace
-                        console.log($(this).text())
-                        if ($(e.target).text().length == 0) {
-                            $(this).prev('.word').focus();
+                        var number_of_spaces = ($(this).text().match(/ /g) || []).length;
+                        if (number_of_spaces) {
                             e.preventDefault();
                         }
+                        break;
+                    case 13: // return
+                        // TODO: create post
+                        e.preventDefault();
                         break;
                 }
             })
@@ -42,19 +40,13 @@
             });
 
         function createDayEl(day) {
-            var words = day.content
-                ? day.content.split(' ')
-                : [null, null];
             return $('<div class="day">')
                 .addClass(day.E)
                 .addClass(day.today ? 'today' : null)
                 .addClass(day.fav ? 'fav' : null)
                 .append(
-                    $('<span class="first word">')
-                        .text(words[0])
-                        .attr('contenteditable', day.today),
-                    $('<span class="second word">')
-                        .text(words[1])
+                    $('<span class="post">')
+                        .text(day.content)
                         .attr('contenteditable', day.today)
                 );
         }
