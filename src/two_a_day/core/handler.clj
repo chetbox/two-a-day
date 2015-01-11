@@ -1,8 +1,9 @@
 (ns two-a-day.core.handler
-  (:require [compojure.core :refer :all]
+  (:require [compojure.core :refer [GET POST defroutes]]
             [compojure.route :as route]
             [ring.util.response :refer [file-response]]
-            [ring.middleware.json :refer [wrap-json-response]]))
+            [ring.middleware.json :refer [wrap-json-response]]
+            [ring.middleware.params :refer [wrap-params]]))
 
 (defroutes app-routes
   (GET "/" []
@@ -49,10 +50,13 @@
              :E "tue"
              :content "zero zero"
              :fav true}]})
-  (POST "/api/day/:date" [date content]
-    (str date " -> " content))
+  (POST "/api/day/:date" [date content fav]
+    (str date " -> " content (when fav " <3") "\n"))
   (route/resources "/")
   (route/not-found "Not Found"))
 
 (def app
-  (wrap-json-response app-routes))
+  (-> app-routes
+    (wrap-params)
+    (wrap-json-response)))
+

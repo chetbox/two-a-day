@@ -28,20 +28,27 @@
                         }
                         break;
                     case 13: // return
-                        // TODO: create post
+                        $(this).blur();
                         e.preventDefault();
                         break;
                 }
             })
-
-        // TODO: make today favouritable
-        .on('click', '.day:not(.today)', function() {
-            $(this).closest('.day')
-                .toggleClass('fav');
-        });
+            .on('blur', '.today .content[contenteditable]', function() {
+                var content = $(this).text();
+                var date = $(this).closest('.day').data('date');
+                $.post('/api/day/' + date, {content:content}, function(msg) {
+                    console.log(msg);
+                });
+            })
+            .on('click', '.day:not(.today)', function() {
+                // TODO: make today favouritable
+                $(this).closest('.day')
+                    .toggleClass('fav');
+            });
 
         function createDayEl(day) {
             return $('<div class="day">')
+                .data('date', day.date)
                 .addClass(day.E)
                 .addClass(day.today ? 'today' : null)
                 .addClass(day.fav ? 'fav' : null)
