@@ -1,0 +1,2 @@
+{:db-host {:host "localhost"}
+ :db-name "two-a-day"}

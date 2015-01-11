@@ -3,55 +3,56 @@
             [compojure.route :as route]
             [ring.util.response :refer [file-response]]
             [ring.middleware.json :refer [wrap-json-response]]
-            [ring.middleware.params :refer [wrap-params]]))
+            [ring.middleware.params :refer [wrap-params]]
+            [monger.core :as mg]
+            [monger.collection :as mc]
+            monger.joda-time
+            [clojure.string :as str]
+            [clj-time.core :refer [today ago weeks]]
+            [clj-time.format :as time-format]
+            [clj-time.predicates :refer [same-date?]]))
+
+(def config (read-string (slurp "config.edn")))
+
+; Connect to database
+(def db-conn (mg/connect (:db-host config)))
+(def db (mg/get-db db-conn "two-a-day"))
+
+(def date-format (time-format/formatter "yyyy-MM-dd"))
+(def day-format (time-format/formatter "EEE"))
+
+(defn str->date
+  [s]
+  (time-format/parse date-format s))
+
+(defn json-friendly-day-map
+  [doc]
+  (merge {:date (time-format/unparse date-format (:date doc))
+          :day (time-format/unparse day-format (:date doc))
+          :content (:content doc)}
+         (when (:fav doc)
+           {:fav true})
+         (when (same-date? (today) (:date doc))
+           {:today true})))
 
 (defroutes app-routes
   (GET "/" []
     (file-response "resources/public/index.html"))
   (GET "/api/last-week" []
-    {:body [{:date "2014-12-26"
-             :E "mon"
-             :content "one two"
-             :today true}
-            {:date "2014-12-25"
-             :E "sun"
-             :content "three four"}
-            {:date "2014-12-24"
-             :E "sat"
-             :content "five six"
-             :fav true}
-            {:date "2014-12-23"
-             :E "fri"
-             :content "seven eight"}
-            {:date "2014-12-22"
-             :E "thu"
-             :content "nine ten"}
-            {:date "2014-12-21"
-             :E "wed"
-             :content "evelen twelve"
-             :fav true}
-            {:date "2014-12-20"
-             :content "thirteen fourteen"
-             :E "tue"}]})
+    {:body (map json-friendly-day-map
+                (mc/find-maps db "days" {:date {"$lte" (today)
+                                                "$gt" (ago (weeks 1))}}))})
   (GET "/api/faves" [before]
-    {:body [{:date "2014-12-26"
-             :E "fri"
-             :content "zero zero"
-             :fav true}
-            {:date "2014-12-25"
-             :E "thu"
-             :content "zero zero"
-             :fav true}
-            {:date "2014-11-30"
-             :E "mon"
-             :content "zero zero"
-             :fav true}
-            {:date "2014-11-24"
-             :E "tue"
-             :content "zero zero"
-             :fav true}]})
-  (POST "/api/day/:date" [date content fav]
-    (str date " -> " content (when (= fav "true") " <3") "\n"))
+    {:body (map json-friendly-day-map
+                (mc/find-maps db "days" (if before
+                                         {:date {"$lt" (str->date before)}}
+                                         {})))})
+  (POST "/api/today" [content]
+    (mc/update db "days" {:date (today)} {"$set" {:content content}} {:upsert true})
+    "ok")
+  (POST "/api/day/:date-str" [date-str fav]
+    (mc/update db "days" {:date (str->date date-str)} {"$set" {:fav (= fav "true")}})
+    "ok")
   (route/resources "/")
   (route/not-found "Not Found"))
 

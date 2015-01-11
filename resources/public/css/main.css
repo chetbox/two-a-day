@@ -42,12 +42,12 @@ h1 {
   position: relative;
   height: 1.5em;
 }
-.day.today {
+.day#today {
   background-color: #eee;
   margin-bottom: 0.25em;
   padding: 0.25em 0;
 }
-.day.today .content {
+.day#today .content {
   text-align: center;
   color: #000;
   border: none;
@@ -94,14 +94,14 @@ h1 {
   padding: 0;
   text-align: center;
 }
-.mon.day:before { content: 'Mon'; }
-.tue.day:before { content: 'Tue'; }
-.wed.day:before { content: 'Wed'; }
-.thu.day:before { content: 'Thu'; }
-.fri.day:before { content: 'Fri'; }
-.sat.day:before { content: 'Sat'; }
-.sun.day:before { content: 'Sun'; }
-.day.today:before {
+.Mon.day:before { content: 'Mon'; }
+.Tue.day:before { content: 'Tue'; }
+.Wed.day:before { content: 'Wed'; }
+.Thu.day:before { content: 'Thu'; }
+.Fri.day:before { content: 'Fri'; }
+.Sat.day:before { content: 'Sat'; }
+.Sun.day:before { content: 'Sun'; }
+.day#today:before {
   color: #999;
   content: 'Today';
 }

@@ -13,13 +13,17 @@
             <h1>What was the best thing about your day?</h1>
         </div>
         <div id="days">
-            <div id="last-week"></div>
+            <div id="last-week">
+                <div id="today" class="day">
+                    <span class="content" contenteditable></span>
+                </div>
+            </div>
             <div id="previous"></div>
         </div>
     </body>
     <script type="text/javascript">
-        $('#days')
-            .on('keydown', '.today .content[contenteditable]', function(e) {
+        $('#days #today .content[contenteditable')
+            .on('keydown', function(e) {
                 switch (e.which) {
                     case 32: // space
                         var number_of_spaces = ($(this).text().match(/ /g) || []).length;
@@ -33,16 +37,20 @@
                         break;
                 }
             })
-            .on('blur', '.today .content[contenteditable]', function() {
+            .on('blur', function() {
                 var content = $(this).text();
                 var date = $(this).closest('.day').data('date');
-                $.post('/api/day/' + date, {content: content}, function(msg) {
+                $.post('/api/today', {content: content}, function(msg) {
                     console.log(msg);
                 });
-            })
-            .on('click', '.day:not(.today)', function() {
-                // TODO: make today favouritable
+            });
+
+        $('#days')
+            .on('click', '.day:not(#today)', function() {
+                // TODO: make today favouritable?
                 var day = $(this).closest('.day');
+
+                console.log(day.data('date'))
 
                 day.toggleClass('fav');
 
@@ -52,31 +60,41 @@
             });
 
         function createDayEl(day) {
-            return $('<div class="day">')
-                .data('date', day.date)
-                .addClass(day.E)
-                .addClass(day.today ? 'today' : null)
-                .addClass(day.fav ? 'fav' : null)
-                .append(
-                    $('<span class="content">')
+            if (day.today) {
+                return $('#today')
+                    [day.fav ? 'addClass' : 'removeClass']('fav')
+                    .removeClass('Mon Tue Wed Thu Fri Sat Sun')
+                    .addClass(day.day)
+                    .find('.content')
                         .text(day.content)
-                        .attr('contenteditable', day.today)
-                );
+                    .end();
+            } else {
+                return $('<div class="day">')
+                    .data('date', day.date)
+                    .addClass(day.day)
+                    .addClass(day.fav ? 'fav' : null)
+                    .append(
+                        $('<span class="content">')
+                            .text(day.content)
+                    );
+            }
         }
 
         $.get('/api/last-week', function(days) {
             $('#last-week').append( $.map(days, createDayEl) );
 
-            var today = $('.today .content[contenteditable]');
+            var today = $('#today .content[contenteditable]');
             if (today.text().length == 0) {
                 today.focus();
                 window.scrollTo(0, 0);
             }
 
             var last_day = days[days.length-1];
-            $.get('/api/faves?before=' + last_day.date, function(days) {
-                $('#previous').append( $.map(days, createDayEl) );
-            });
+            if (last_day) {
+                $.get('/api/faves?before=' + last_day.date, function(days) {
+                    $('#previous').append( $.map(days, createDayEl) );
+                });
+            }
 
             // TODO: fetch more when scrolled to the bottom
         });
