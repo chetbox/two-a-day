@@ -7,50 +7,50 @@
 (defroutes app-routes
   (GET "/" []
     (file-response "resources/public/index.html"))
-  (GET "/api/weeks/previous" []
-    {:body [{:y 2014 :w 43}
-            {:y 2014 :w 44}
-            {:y 2014 :w 45}
-            {:y 2014 :w 46}
-            {:y 2014 :w 47}
-            {:y 2014 :w 48}
-            {:y 2014 :w 49}
-            {:y 2014 :w 50}
-            {:y 2014 :w 51}]})
-  (GET "/api/weeks/current" []
-    {:body {:w 52
-            :days [{:y 2014
-                    :E "mon"
-                    :content "one two"
-                    :m 12
-                    :d 20}
-                   {:y 2014
-                    :E "tue"
-                    :content "three four"
-                    :m 12
-                    :fav true
-                    :d 21}
-                   {:y 2014
-                    :E "wed"
-                    :today true
-                    :m 12
-                    :d 21}]}})
-  (GET "/api/weeks/:week" [week]
-    {:body {:w (Integer/parseInt week)
-            :y 2014
-            :days [{:E "mon"
-                    :content "one two"
-                    :m 12
-                    :d 20}
-                   {:E "tue"
-                    :content "three four"
-                    :m 12
-                    :fav true
-                    :d 21}]}})
-  (POST "/api/weeks/:week" [week]
-    week)
-  (POST "/api/days/:year/:month/:day" [year month day fav]
-    {:body [year month day]})
+  (GET "/api/last-week" []
+    {:body [{:date "2014-12-26"
+             :E "mon"
+             :content "one two"
+             :today true}
+            {:date "2014-12-25"
+             :E "sun"
+             :content "three four"}
+            {:date "2014-12-24"
+             :E "sat"
+             :content "five six"
+             :fav true}
+            {:date "2014-12-23"
+             :E "fri"
+             :content "seven eight"}
+            {:date "2014-12-22"
+             :E "thu"
+             :content "nine ten"}
+            {:date "2014-12-21"
+             :E "wed"
+             :content "evelen twelve"
+             :fav true}
+            {:date "2014-12-20"
+             :content "thirteen fourteen"
+             :E "tue"}]})
+  (GET "/api/faves" [before]
+    {:body [{:date "2014-12-26"
+             :E "fri"
+             :content "zero zero"
+             :fav true}
+            {:date "2014-12-25"
+             :E "thu"
+             :content "zero zero"
+             :fav true}
+            {:date "2014-11-30"
+             :E "mon"
+             :content "zero zero"
+             :fav true}
+            {:date "2014-11-24"
+             :E "tue"
+             :content "zero zero"
+             :fav true}]})
+  (POST "/api/day/:date" [date content]
+    (str date " -> " content))
   (route/resources "/")
   (route/not-found "Not Found"))
 

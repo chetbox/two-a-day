@@ -12,13 +12,14 @@
         <div id="banner">
             <h1>What was the best thing about your day?</h1>
         </div>
-        <div id="weeks">
-            <div class="week current">
+        <div id="days">
+            <div id="last-week"></div>
+            <div id="previous"></div>
         </div>
     </body>
     <script type="text/javascript">
-        $('.current.week')
-            .on('keydown', '.today .post', function(e) {
+        $('#days')
+            .on('keydown', '.today .content[contenteditable]', function(e) {
                 switch (e.which) {
                     case 32: // space
                         var number_of_spaces = ($(this).text().match(/ /g) || []).length;
@@ -32,12 +33,12 @@
                         break;
                 }
             })
-            // TODO: make today favouritable
-            .on('click', '.day:not(.today)', function() {
-                $(this).closest('.day')
-                    .addClass('fav')
-                    .siblings().removeClass('fav');
-            });
+
+        // TODO: make today favouritable
+        .on('click', '.day:not(.today)', function() {
+            $(this).closest('.day')
+                .toggleClass('fav');
+        });
 
         function createDayEl(day) {
             return $('<div class="day">')
@@ -45,40 +46,28 @@
                 .addClass(day.today ? 'today' : null)
                 .addClass(day.fav ? 'fav' : null)
                 .append(
-                    $('<span class="post">')
+                    $('<span class="content">')
                         .text(day.content)
                         .attr('contenteditable', day.today)
                 );
         }
 
-        function fetchWeek(elem, week_id, callback) {
-            $.get('/api/weeks/' + week_id, function(week) {
-                $(elem)
-                    .addClass('_' + week.w)
-                    .append( $.map(week.days.reverse(), createDayEl) );
-                if (callback) callback(week);
+        $.get('/api/last-week', function(days) {
+            $('#last-week').append( $.map(days, createDayEl) );
+
+            var today = $('.today .content[contenteditable]');
+            if (today.text().length == 0) {
+                today.focus();
+                window.scrollTo(0, 0);
+            }
+
+            var last_day = days[days.length-1];
+            $.get('/api/faves?before=' + last_day.date, function(days) {
+                $('#previous').append( $.map(days, createDayEl) );
             });
-        }
 
-        function createWeekEl(week) {
-            return $('<div class="week">')
-                .addClass('_' + week.w);
-        }
-
-        fetchWeek($('.week.current'), 'current', function() {
-            $('.week.current .today .first.word').focus();
-            window.scrollTo(0, 0);
+            // TODO: fetch more when scrolled to the bottom
         });
 
-        $.get('/api/weeks/previous', function(weeks) {
-            $('#weeks')
-                .append(
-                    $.map(weeks.reverse(), function(week) {
-                        var el = createWeekEl(week);
-                        fetchWeek(el, week.w);
-                        return el;
-                    })
-                );
-        });
     </script>
 </html>
