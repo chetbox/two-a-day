@@ -36,14 +36,19 @@
             .on('blur', '.today .content[contenteditable]', function() {
                 var content = $(this).text();
                 var date = $(this).closest('.day').data('date');
-                $.post('/api/day/' + date, {content:content}, function(msg) {
+                $.post('/api/day/' + date, {content: content}, function(msg) {
                     console.log(msg);
                 });
             })
             .on('click', '.day:not(.today)', function() {
                 // TODO: make today favouritable
-                $(this).closest('.day')
-                    .toggleClass('fav');
+                var day = $(this).closest('.day');
+
+                day.toggleClass('fav');
+
+                $.post('/api/day/' + day.data('date'), {fav: day.hasClass('fav')}, function(msg) {
+                    console.log(msg);
+                });
             });
 
         function createDayEl(day) {

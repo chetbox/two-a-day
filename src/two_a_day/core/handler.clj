@@ -51,7 +51,7 @@
              :content "zero zero"
              :fav true}]})
   (POST "/api/day/:date" [date content fav]
-    (str date " -> " content (when fav " <3") "\n"))
+    (str date " -> " content (when (= fav "true") " <3") "\n"))
   (route/resources "/")
   (route/not-found "Not Found"))
 
