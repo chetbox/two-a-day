@@ -6,6 +6,7 @@
             [ring.middleware.params :refer [wrap-params]]
             [monger.core :as mg]
             [monger.collection :as mc]
+            [monger.query :as mq]
             monger.joda-time
             [clojure.string :as str]
             [clj-time.core :refer [today ago weeks]]
@@ -20,6 +21,8 @@
 
 (def date-format (time-format/formatter "yyyy-MM-dd"))
 (def day-format (time-format/formatter "EEE"))
+
+(def by-latest-first (array-map :date -1))
 
 (defn str->date
   [s]
@@ -40,13 +43,18 @@
     (file-response "resources/public/index.html"))
   (GET "/api/last-week" []
     {:body (map json-friendly-day-map
-                (mc/find-maps db "days" {:date {"$lte" (today)
-                                                "$gt" (ago (weeks 1))}}))})
+                (mq/with-collection db "days"
+                  (mq/find {:date {"$lte" (today)
+                                   "$gt" (ago (weeks 1))}})
+                  (mq/sort by-latest-first)))})
   (GET "/api/faves" [before]
     {:body (map json-friendly-day-map
-                (mc/find-maps db "days" (if before
-                                         {:date {"$lt" (str->date before)}}
-                                         {})))})
+                (mq/with-collection db "days"
+                  (mq/find (if before
+                             {:date {"$lt" (str->date before)}}
+                             {}))
+                  (mq/sort by-latest-first)
+                  (mq/limit 10)))})
   (POST "/api/today" [content]
     (mc/update db "days" {:date (today)} {"$set" {:content content}} {:upsert true})
     "ok")
