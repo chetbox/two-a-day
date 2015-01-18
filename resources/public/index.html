@@ -7,10 +7,11 @@
         <link href="css/mobile.css" media="screen and (max-width:640px)" rel="stylesheet" type="text/css" />
         <link href="http://fonts.googleapis.com/css?family=Roboto+Slab:100,400" rel="stylesheet" type="text/css" />
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+        <script src="js/dateUtils.js"></script>
     </head>
     <body>
         <div id="banner">
-            <h1>What was the best thing about your day?</h1>
+            <h1>What was today's best moment?</h1>
         </div>
         <div id="days">
             <div id="last-week">
@@ -18,12 +19,36 @@
                     <span class="content" contenteditable></span>
                     <a>&#9733;</a>
                 </div>
+                <div id="yesterday" class="day">
+                    <span class="content" contenteditable></span>
+                    <a>&#9733;</a>
+                </div>
+                <div class="day">
+                    <span class="content"></span>
+                    <a>&#9733;</a>
+                </div>
+                <div class="day">
+                    <span class="content"></span>
+                    <a>&#9733;</a>
+                </div>
+                <div class="day">
+                    <span class="content"></span>
+                    <a>&#9733;</a>
+                </div>
+                <div class="day">
+                    <span class="content"></span>
+                    <a>&#9733;</a>
+                </div>
+                <div class="day">
+                    <span class="content"></span>
+                    <a>&#9733;</a>
+                </div>
             </div>
             <div id="previous"></div>
         </div>
     </body>
     <script type="text/javascript">
-        $('#days #today .content[contenteditable]')
+        $('.day .content[contenteditable]')
             .on('keydown', function(e) {
                 switch (e.which) {
                     case 32: // space
@@ -41,7 +66,7 @@
             .on('blur', function() {
                 var content = $(this).text();
                 var date = $(this).closest('.day').data('date');
-                $.post('/api/today', {content: content}, function(msg) {
+                $.post('/api/day/' + dateStr(date), {content: content}, function(msg) {
                     console.log(msg);
                 });
             });
@@ -49,57 +74,61 @@
         $('#days')
             .on('click', '.day > a', function() {
                 var day = $(this).closest('.day');
+                var date = $(this).closest('.day').data('date');
                 day.toggleClass('fav');
 
-                var date = day.attr('id') === 'today'
-                    ? 'today'
-                    : day.data('date');
-                $.post('/api/day/' + date, {fav: day.hasClass('fav')}, function(msg) {
+                $.post('/api/day/' +  dateStr(date), {fav: day.hasClass('fav')}, function(msg) {
                     console.log(msg);
                 });
             });
 
         function createDayEl(day) {
-            if (day.today) {
-                return $('#today')
-                    [day.fav ? 'addClass' : 'removeClass']('fav')
-                    .removeClass('Mon Tue Wed Thu Fri Sat Sun')
-                    .addClass(day.day)
-                    .find('.content')
-                        .text(day.content)
-                    .end();
-            } else {
-                return $('<div class="day">')
-                    .data('date', day.date)
-                    .addClass(day.day)
-                    .addClass(day.fav ? 'fav' : null)
-                    .append(
-                        $('<span class="content">')
-                            .text(day.content),
-                        $('<a>')
-                            .text('\u2605')
-                    );
-            }
+            return $('<div class="day">')
+                .data('date', new Date(day.date))
+                .addClass(shortDayStr(new Date(day.date)))
+                .addClass(day.fav ? 'fav' : null)
+                .append(
+                    $('<span class="content">')
+                        .text(day.content),
+                    $('<a>')
+                        .text('\u2605')
+                );
         }
 
+        // annotate existing HTML with dates
+        var day_els = $('#last-week .day');
+        day_els.each(function (i) {
+            var date = new Date(new Date() - i * DAY);
+            $(this)
+                .addClass(shortDayStr(date))
+                .data('date', date);
+        });
+
         $.get('/api/last-week', function(days) {
-            $('#last-week').append( $.map(days, createDayEl) );
+
+            $.each(days, function() {
+                var date = new Date(this.date);
+                $(day_els[daysAgo(date)])
+                    .addClass(this.fav ? 'fav' : null)
+                    .find('.content')
+                        .text(this.content);
+            });
 
             var today = $('#today .content[contenteditable]');
             if (today.text().length == 0) {
                 today.focus();
                 window.scrollTo(0, 0);
             }
-
-            var last_day = days[days.length-1];
-            if (last_day) {
-                $.get('/api/faves?before=' + last_day.date, function(days) {
-                    $('#previous').append( $.map(days, createDayEl) );
-                });
-            }
-
-            // TODO: fetch more when scrolled to the bottom
         });
 
+        var last_day = days[days.length-1];
+        if (last_day) {
+            var a_week_ago = new Date(new Date() - 7 * DAY);
+            $.get('/api/faves?before=' + dateStr(a_week_ago), function(days) {
+                $('#previous').append( $.map(days, createDayEl) );
+            });
+        }
+
+        // TODO: fetch more when scrolled to the bottom
     </script>
 </html>
