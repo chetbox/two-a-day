@@ -65,8 +65,7 @@ h1 {
   text-align: center;
 }
 
-.day:after {
-  content: '\2605';
+.day > a {
   position: absolute;
   right: 0.25em;
   color: #222;
@@ -75,7 +74,7 @@ h1 {
   transition: color 0.2s ease-out;
   cursor: pointer;
 }
-.day.fav:after {
+.day.fav > a {
   color: #aa0;
 }
 

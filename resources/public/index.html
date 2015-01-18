@@ -16,13 +16,14 @@
             <div id="last-week">
                 <div id="today" class="day">
                     <span class="content" contenteditable></span>
+                    <a>&#9733;</a>
                 </div>
             </div>
             <div id="previous"></div>
         </div>
     </body>
     <script type="text/javascript">
-        $('#days #today .content[contenteditable')
+        $('#days #today .content[contenteditable]')
             .on('keydown', function(e) {
                 switch (e.which) {
                     case 32: // space
@@ -46,15 +47,14 @@
             });
 
         $('#days')
-            .on('click', '.day:not(#today)', function() {
-                // TODO: make today favouritable?
+            .on('click', '.day > a', function() {
                 var day = $(this).closest('.day');
-
-                console.log(day.data('date'))
-
                 day.toggleClass('fav');
 
-                $.post('/api/day/' + day.data('date'), {fav: day.hasClass('fav')}, function(msg) {
+                var date = day.attr('id') === 'today'
+                    ? 'today'
+                    : day.data('date');
+                $.post('/api/day/' + date, {fav: day.hasClass('fav')}, function(msg) {
                     console.log(msg);
                 });
             });
@@ -75,7 +75,9 @@
                     .addClass(day.fav ? 'fav' : null)
                     .append(
                         $('<span class="content">')
-                            .text(day.content)
+                            .text(day.content),
+                        $('<a>')
+                            .text('\u2605')
                     );
             }
         }

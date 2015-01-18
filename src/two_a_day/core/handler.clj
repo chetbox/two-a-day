@@ -54,13 +54,14 @@
                              {:date {"$lt" (str->date before)}}
                              {}))
                   (mq/sort by-latest-first)
-                  (mq/limit 10)))})
+                  (mq/limit 30)))})
   (POST "/api/today" [content]
     (mc/update db "days" {:date (today)} {"$set" {:content content}} {:upsert true})
     "ok")
   (POST "/api/day/:date-str" [date-str fav]
-    (mc/update db "days" {:date (str->date date-str)} {"$set" {:fav (= fav "true")}})
-    "ok")
+    (let [date (if (= "today" date-str) (today) (str->date date-str))]
+      (mc/update db "days" {:date date} {"$set" {:fav (= fav "true")}})
+      "ok"))
   (route/resources "/")
   (route/not-found "Not Found"))
 
