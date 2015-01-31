@@ -50,9 +50,11 @@
   (GET "/api/faves" [before]
     {:body (map json-friendly-day-map
                 (mq/with-collection db "days"
-                  (mq/find (if before
-                             {:date {"$lt" (str->date before)}}
-                             {}))
+                  (mq/find (merge
+                             {:fav true}
+                             (if before
+                               {:date {"$lt" (str->date before)}}
+                               {})))
                   (mq/sort by-latest-first)
                   (mq/limit 30)))})
   (POST "/api/day/:date-str" [date-str content fav]

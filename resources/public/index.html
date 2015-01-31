@@ -11,7 +11,7 @@
     </head>
     <body>
         <div id="banner">
-            <h1>What was today's best moment?</h1>
+            <h1>What are you happy about today?</h1>
         </div>
         <div id="days">
             <div id="last-week">
@@ -121,13 +121,10 @@
             }
         });
 
-        var last_day = days[days.length-1];
-        if (last_day) {
-            var a_week_ago = new Date(new Date() - 7 * DAY);
-            $.get('/api/faves?before=' + dateStr(a_week_ago), function(days) {
-                $('#previous').append( $.map(days, createDayEl) );
-            });
-        }
+        var a_week_ago = new Date(new Date() - 7 * DAY);
+        $.get('/api/faves?before=' + dateStr(a_week_ago), function(days) {
+            $('#previous').append( $.map(days, createDayEl) );
+        });
 
         // TODO: fetch more when scrolled to the bottom
     </script>
