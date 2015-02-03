@@ -1,2 +1,8 @@
-{:db-host {:host "localhost"}
- :db-name "two-a-day"}
+{:dynamodb {:access-key "dummy"  ; For DynamoDB Local, just put some random string
+            :secret-key "dummy" ; For production, put your IAM keys here
+
+            ;; This line below is the only line that is added for DynamoDB Local.
+            ;; Remove it (and add your IAM keys above) to run your code in production.
+            :endpoint "http://localhost:8000"}
+
+ :posts-table :two-a-day}

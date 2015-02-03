@@ -4,65 +4,64 @@
             [ring.util.response :refer [file-response]]
             [ring.middleware.json :refer [wrap-json-response]]
             [ring.middleware.params :refer [wrap-params]]
-            [monger.core :as mg]
-            [monger.collection :as mc]
-            [monger.query :as mq]
-            monger.joda-time
+            [taoensso.faraday :as far]
             [clojure.string :as str]
-            [clj-time.core :refer [today ago weeks days]]
+            [clj-time.core :as time]
             [clj-time.format :as time-format]
             [clj-time.predicates :refer [same-date?]]))
 
+
 (def config (read-string (slurp "config.edn")))
 
-; Connect to database
-(def db-conn (mg/connect (:db-host config)))
-(def db (mg/get-db db-conn "two-a-day"))
+(def my-user-id "me") ; TODO: implement login
 
-(def date-format (time-format/formatter "yyyy-MM-dd"))
-(def day-format (time-format/formatter "EEE"))
+(defn today
+  []
+  "2015-01-31") ; TODO: implement me
 
-(def by-latest-first (array-map :date -1))
+(defn one-week-ago
+  []
+  "2015-01-24") ; TODO: implement me
 
-(defn str->date
-  [s]
-  (time-format/parse date-format s))
-
-(defn json-friendly-day-map
-  [doc]
-  (merge {:date (time-format/unparse date-format (:date doc))
-          :day (time-format/unparse day-format (:date doc))
-          :content (:content doc)}
-         (when (:fav doc)
-           {:fav true})
-         (when (same-date? (today) (:date doc))
-           {:today true})))
+; Database setup
+(far/ensure-table (:dynamodb config)
+                  (:posts-table config)
+                  [:user-id :s]
+                  {:range-keydef [:date :s]
+                   :throughput {:read 1
+                                :write 1}
+                   :block? true})
 
 (defroutes app-routes
   (GET "/" []
     (file-response "resources/public/index.html"))
   (GET "/api/last-week" []
-    {:body (map json-friendly-day-map
-                (mq/with-collection db "days"
-                  (mq/find {:date {"$lte" (today)
-                                   "$gt" (ago (weeks 1))}})
-                  (mq/sort by-latest-first)))})
+    {:body (far/query (:dynamodb config)
+                      (:posts-table config)
+                      {:user-id [:eq my-user-id]
+                       :date [:between [(one-week-ago) (today)]]})}) ; TODO: sort by date
   (GET "/api/faves" [before]
-    {:body (map json-friendly-day-map
-                (mq/with-collection db "days"
-                  (mq/find (merge
-                             {:fav true}
-                             (if before
-                               {:date {"$lt" (str->date before)}}
-                               {})))
-                  (mq/sort by-latest-first)
-                  (mq/limit 30)))})
-  (POST "/api/day/:date-str" [date-str content fav]
-    (when content
-      (mc/update db "days" {:date (str->date date-str)} {"$set" {:content content}} {:upsert true}))
-    (when fav
-      (mc/update db "days" {:date (str->date date-str)} {"$set" {:fav (= fav "true")}}))
-    "ok")
+    {:body (far/query (:dynamodb config)
+                      (:posts-table config)
+                      (merge
+                        {:user-id [:eq my-user-id]
+                         :fav [:eq 1]}
+                        (when before
+                          {:date [:lt before]}))
+                      :limit 10)}) ; TODO: sort by date
+  (POST "/api/day/:date" [date content fav]
+    (assert (or content fav))
+    (far/update-item
+      (:dynamodb config)
+      (:posts-table config)
+      {:user-id my-user-id
+       :date date}
+      (merge
+        (when content
+          {:content [:put content]})
+        (when fav
+          {:fav [:put (if (= fav "true") 1 0)]})))
+    "ok\n")
   (route/resources "/")
   (route/not-found "Not Found"))
 
