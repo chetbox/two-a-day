@@ -6,7 +6,8 @@
                  [compojure "1.3.1"]
                  [ring/ring-json "0.3.1"]
                  [com.taoensso/faraday "1.6.0"]
-                 [clj-time "0.9.0"]]
+                 [clj-time "0.9.0"]
+                 [clj-oauth "1.5.2"]]
   :plugins [[lein-ring "0.8.13"]]
   :ring {:handler two-a-day.core.handler/app}
   :profiles

@@ -5,4 +5,5 @@
             ;; Remove it (and add your IAM keys above) to run your code in production.
             :endpoint "http://localhost:8000"}
 
- :posts-table :two-a-day}
+ :twitter-app {:consumer-key    "Eq3uMsW76pQTiPKMk0W6kHjEj"
+               :consumer-secret "1DIF07XGud3bRpb72AkuNkpgZLfbNMXS02ZrqVxvW2x9IudrSA"}}
