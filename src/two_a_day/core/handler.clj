@@ -24,7 +24,7 @@
 
 (defroutes app-routes
   (GET "/" []
-    (file-response "resources/public/index.html"))
+    (file-response "resources/index.html"))
   (GET "/api/last-week" []
     {:body (far/query (:dynamodb config)
                       (:posts-table config)
