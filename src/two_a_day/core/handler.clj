@@ -1,7 +1,6 @@
 (ns two-a-day.core.handler
   (:require [compojure.core :refer [GET POST defroutes]]
             [compojure.route :as route]
-            [clojure.pprint :refer [pprint]]
             [ring.util.response :refer [file-response redirect]]
             [ring.middleware.json :refer [wrap-json-response]]
             [ring.middleware.params :refer [wrap-params]]
