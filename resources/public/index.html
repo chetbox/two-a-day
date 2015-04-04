@@ -86,7 +86,7 @@
             return $('<div class="day">')
                 .data('date', new Date(day.date))
                 .addClass(shortDayStr(new Date(day.date)))
-                .addClass(day.fav ? 'fav' : null)
+                .addClass(day.fav && 'fav')
                 .append(
                     $('<span class="content">')
                         .text(day.content),
@@ -109,7 +109,7 @@
             $.each(days, function() {
                 var date = new Date(this.date);
                 $(day_els[daysAgo(date)])
-                    .addClass(this.fav ? 'fav' : null)
+                    .addClass(this.fav && 'fav')
                     .find('.content')
                         .text(this.content);
             });
