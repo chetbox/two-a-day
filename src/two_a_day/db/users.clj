@@ -8,7 +8,6 @@
 
   (print "Setting up users database table... ")
 
-    (far/delete-table connection-info table)
     (far/ensure-table connection-info
                       table
                       [:user_id :s] ; Twitter user_id
