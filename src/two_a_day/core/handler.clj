@@ -48,13 +48,11 @@
       (:posts-table config)
       {:user-id my-user-id
        :date date}
-      (let [thing
       (merge
         (when content
           {:content [:put content]})
         (when fav
-          {:fav [:put (if (= fav "true") 1 0)]}))]
-        (println thing) thing))
+          {:fav [:put (if (= fav "true") 1 0)]})))
     "ok\n")
   (route/resources "/")
   (route/not-found "Not Found"))
