@@ -1,8 +1,9 @@
 (ns two-a-day.core.handler
+  (:gen-class)
   (:require [compojure.core :refer [GET POST routes]]
             [compojure.route :as route]
             [compojure.handler :refer [site]]
-            [ring.util.response :refer [file-response redirect]]
+            [ring.util.response :refer [resource-response redirect]]
             [ring.middleware.json :refer [wrap-json-response]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.cookies :refer [wrap-cookies]]
@@ -32,7 +33,7 @@
 
     (GET "/" [user-id]
       (if user-id
-        (file-response "resources/index.html")
+        (resource-response "index.html")
         (redirect "/login/twitter")))
 
     (GET "/login/twitter" req

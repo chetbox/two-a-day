@@ -52,6 +52,10 @@ h1 {
   color: #000;
   border: none;
 }
+.day#today.fav > a {
+  color: #ee0;
+  text-shadow: 0 0 4px #777;
+}
 
 .day .content {
   position: absolute;
