@@ -65,6 +65,7 @@
             })
             .on('blur', function() {
                 var content = $(this).text();
+                if (!content) return;
                 var date = $(this).closest('.day').data('date');
                 $.post('/api/day/' + dateStr(date), {content: content}, function(msg) {
                     console.log(msg);

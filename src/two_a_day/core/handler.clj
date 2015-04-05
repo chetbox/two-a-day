@@ -35,10 +35,13 @@
         (file-response "resources/index.html")
         (redirect "/login/twitter")))
 
-    (GET "/login/twitter" []
-      (let [request-token (oauth/request-token twitter-auth-consumer "http://localhost:3000/login/twitter/oauth_callback")]
-        (auth/put-request-token (:oauth_token request-token)
-                                request-token)
+    (GET "/login/twitter" req
+      (let [scheme (name (:scheme req))
+            host (get-in req [:headers "host"])
+            redirect-url (str scheme "://" host "/login/twitter/oauth_callback") ; must match the address of the route below
+            request-token (oauth/request-token twitter-auth-consumer redirect-url)]
+        (auth/push-request-token (:oauth_token request-token)
+                                 request-token)
         (redirect (oauth/user-approval-uri twitter-auth-consumer
                                            (:oauth_token request-token)))))
 
@@ -90,7 +93,9 @@
         posts-db (posts-api (:dynamodb config))
         twitter-auth-consumer (auth/make-twitter-consumer (:twitter-app config))]
 
-  (-> (site (app-routes users-db posts-db config))
+  (-> (site (app-routes users-db
+                        posts-db
+                        twitter-auth-consumer))
     auth/wrap-auth
     wrap-params
     wrap-json-response
@@ -101,7 +106,8 @@
 ;(def app (create-app config))
 
 (defn -main
-  [config-file & args]
+  [config-file & _]
   (let [config (read-string (slurp config-file))]
+    (println "Starting server" (:server-opts config))
     (run-server (create-app config)
                 (:server-opts config))))

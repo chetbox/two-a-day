@@ -12,7 +12,7 @@
 
 (def request-tokens (atom {})) ; TODO : remove after timeout
 
-(defn put-request-token
+(defn push-request-token
   [k v]
   (swap! request-tokens
          assoc k v)
