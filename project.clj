@@ -7,9 +7,11 @@
                  [ring/ring-json "0.3.1"]
                  [com.taoensso/faraday "1.6.0"]
                  [clj-time "0.9.0"]
-                 [clj-oauth "1.5.2"]]
+                 [clj-oauth "1.5.2"]
+                 [http-kit "2.1.16"]]
   :plugins [[lein-ring "0.8.13"]]
   :ring {:handler two-a-day.core.handler/app}
+  :main two-a-day.core.handler
   :profiles
   {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
                         [ring-mock "0.1.5"]]}})
