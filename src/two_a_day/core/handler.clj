@@ -54,6 +54,11 @@
             local-user-id (get-local-user users access-token-response)]
         (auth/set-user-cookie (redirect "/")
                               local-user-id)))
+    (GET "/stats" [user-id]
+      (if user-id
+        {:body {:users (select-keys (users :describe-table) [:item-count])
+                :posts (select-keys (posts :describe-table) [:item-count])}}
+        {:status 403 :body "Forbidden"}))
 
     (GET "/api/last-week" [user-id]
       {:body (posts :query

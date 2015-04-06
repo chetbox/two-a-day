@@ -20,7 +20,8 @@
   (fn [action & args]
     (println "---" action args)
     (case action
-      :query       (apply far/query connection-info table args)
-      :update-item (apply far/update-item connection-info table args))))
+      :query           (apply far/query connection-info table args)
+      :describe-table  (apply far/describe-table connection-info table args)
+      :update-item     (apply far/update-item connection-info table args))))
 
 (defn new-user-id [] (str (java.util.UUID/randomUUID)))
