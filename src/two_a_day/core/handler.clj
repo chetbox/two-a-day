@@ -29,7 +29,12 @@
 
 (defn app-routes
   [users posts twitter-auth-consumer]
+
   (routes
+
+    ; TODO: check user-id is valid
+    ; TODO: check user-id comes from same IP (prevent spoofing)
+
 
     (GET "/" [user-id]
       (if user-id
