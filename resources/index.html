@@ -53,8 +53,8 @@
             .on('keydown', function(e) {
                 switch (e.which) {
                     case 32: // space
-                        var number_of_spaces = ($(this).text().match(/ /g) || []).length;
-                        if (number_of_spaces) {
+                        var number_of_words = 1 + ($(this).text().match(/ +/g) || []).length;
+                        if (number_of_words >= 3) {
                             e.preventDefault();
                         }
                         break;
