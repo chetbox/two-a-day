@@ -113,7 +113,7 @@
     wrap-cookies)))
 
 ; TODO: only do when running from `lein ring`
-;(def config (read-string (slurp "config.edn")))
+;(def config (read-string (slurp "config-debug.edn")))
 ;(def app (create-app config))
 
 (defn -main
