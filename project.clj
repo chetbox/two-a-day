@@ -1,4 +1,4 @@
-(defproject two-a-day "0.1.0-SNAPSHOT"
+(defproject two-a-day "0.1.1"
   :description "Just two words a day"
   :url "http://github.com/chetbox/two-a-day"
   :min-lein-version "2.0.0"
